@@ -42,5 +42,9 @@ public class EmployeeSeeder implements CommandLineRunner {
         company.setEmployees(employees);
 
         companyRepo.save(company);
+
+        Company cp = companyRepo.findById(1L).get();
+        cp.setName("Leyton");
+        companyRepo.save(cp);
     }
 }
