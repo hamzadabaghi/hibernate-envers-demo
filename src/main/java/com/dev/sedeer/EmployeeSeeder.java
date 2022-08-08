@@ -4,9 +4,13 @@ import com.dev.entity.Company;
 import com.dev.entity.Employee;
 import com.dev.repo.CompanyRepo;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.envers.AuditReader;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -14,10 +18,12 @@ import java.util.Set;
 public class EmployeeSeeder implements CommandLineRunner {
 
     private final CompanyRepo companyRepo;
+    private final AuditReader auditReader;
 
     @Override
     public void run(String... args) {
 
+        /* Persisting data - insertion*/
         Company company = new Company();
         company.setName("E Corp");
         company.setCity("New York City");
@@ -40,11 +46,21 @@ public class EmployeeSeeder implements CommandLineRunner {
         employees.add(employee);
 
         company.setEmployees(employees);
-
         companyRepo.save(company);
 
+        /* apply a modification */
         Company cp = companyRepo.findById(1L).get();
         cp.setName("Leyton");
         companyRepo.save(cp);
+
+        Date revisionDate;
+        /* get revisions */
+        List<Number> revisions = auditReader.getRevisions(Company.class, 1L);
+        for (Number rev : revisions) {
+            revisionDate = auditReader.getRevisionDate(rev);
+            System.out.println(revisionDate);
+        }
+
+
     }
 }
